@@ -101,13 +101,19 @@ class VoiceAIUI:
         
         log_info("Creating Gradio Blocks interface...")
         with gr.Blocks(
-            title="Voice AI Agent",
-            theme=gr.themes.Soft()
-        ) as demo:
+    title="Voice AI Agent",
+    theme=gr.themes.Soft(),
+    css="""
+    body { background-color: #0f172a; }
+    .gradio-container { font-family: 'Segoe UI', sans-serif; }
+    .gr-button { border-radius: 10px; }
+    .gr-textbox { border-radius: 10px; }
+    """
+) as demo:
             log_info("Gradio Blocks created, adding components...")
             gr.Markdown(
                 """
-                # 🎤 Voice-Controlled AI Agent
+                # 🎤 Voice- AI Agent
                 
                 **Process audio or text input through a local AI pipeline:**
                 - 🎙️ Speech-to-Text (via Whisper)
@@ -120,7 +126,7 @@ class VoiceAIUI:
             
             with gr.Row():
                 with gr.Column(scale=1):
-                    gr.Markdown("### Input")
+                    gr.Markdown("### Input Panel")
                     
                     # Audio input
                     audio_input = gr.Audio(
@@ -161,7 +167,7 @@ class VoiceAIUI:
                     
                     # Action result output
                     result_output = gr.Textbox(
-                        label="✨ Action Result",
+                        label="✨ Execution Result",
                         interactive=False,
                         lines=5
                     )
@@ -196,14 +202,13 @@ class VoiceAIUI:
                 share=share,
                 server_name=server_name,
                 server_port=server_port,
-                queue=False,
                 show_error=True,
                 inbrowser=False,
                 debug=False
             )
             log_info("✅ Gradio server launched successfully!")
         except Exception as e:
-            log_error(f"Failed to launch Gradio: {e}")
+            print(f"ERROR: {e}")
             import traceback
             traceback.print_exc()
             raise
