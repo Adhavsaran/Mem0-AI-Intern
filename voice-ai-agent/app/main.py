@@ -1,6 +1,6 @@
 """
 Main entry point for Voice AI Agent application.
-Uses: Whisper (HuggingFace) for STT + LM Studio for Intent Classification
+Uses: Whisper (HuggingFace) for STT + Ollama for Intent Classification
 """
 import sys
 import os
@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.ui import create_ui
 from utils.logger import log_info, log_error
-from config import check_lm_studio, LM_STUDIO_BASE_URL
+from config import check_ollama, OLLAMA_BASE_URL
 
 
 def main():
@@ -18,25 +18,25 @@ def main():
     log_info("=" * 60)
     log_info("🎤 Voice-Controlled AI Agent")
     log_info("   STT: Whisper (HuggingFace)")
-    log_info("   LLM: LM Studio (Local)")
+    log_info("   LLM: Ollama (Local)")
     log_info("=" * 60)
     
     try:
         # Pre-flight checks
         log_info("\n📋 Running pre-flight checks...")
         
-        # Check LM Studio
-        if not check_lm_studio():
-            log_error("✗ LM Studio is not running!")
-            log_info("\n⚠️  To use this agent, start LM Studio:")
-            log_info(f"   1. Download LM Studio from: https://lmstudio.ai")
-            log_info(f"   2. Open an LLM model in LM Studio")
-            log_info(f"   3. Start the local server (default: {LM_STUDIO_BASE_URL})")
+        # Check Ollama
+        if not check_ollama():
+            log_error("✗ Ollama is not running!")
+            log_info("\n⚠️  To use this agent, start Ollama:")
+            log_info(f"   1. Download Ollama from: https://ollama.ai")
+            log_info(f"   2. Install and run: ollama serve")
+            log_info(f"   3. Pull a model: ollama pull mistral (or another model)")
             log_info(f"\n   Troubleshooting:")
-            log_info(f"   - Ensure LM Studio is listening on {LM_STUDIO_BASE_URL}")
-            log_info(f"   - Set LM_STUDIO_BASE_URL environment variable if using different port")
+            log_info(f"   - Ensure Ollama is listening on {OLLAMA_BASE_URL}")
+            log_info(f"   - Set OLLAMA_BASE_URL environment variable if using different port")
             return
-        log_info("✓ LM Studio connected")
+        log_info("✓ Ollama connected")
         
         # Check for required tools
         try:
@@ -76,16 +76,35 @@ def main():
         
         log_info("\n✅ All checks passed!\n")
         
+        # Find available port
+        import socket
+        def find_available_port(start_port=7860):
+            """Find an available port starting from start_port."""
+            port = start_port
+            for _ in range(100):  # Try up to 100 ports
+                try:
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    result = sock.connect_ex(('127.0.0.1', port))
+                    sock.close()
+                    if result != 0:  # Port is available
+                        return port
+                except Exception:
+                    pass
+                port += 1
+            return start_port  # Fall back to original port
+        
+        port = find_available_port()
+        
         # Launch UI
         log_info("🚀 Launching Gradio UI...")
-        log_info("📍 Open browser to: http://127.0.0.1:7860")
+        log_info(f"📍 Open browser to: http://127.0.0.1:{port}")
         log_info("   Press Ctrl+C to stop\n")
         
         ui = create_ui()
         ui.launch(
             share=False,
             server_name="127.0.0.1",
-            server_port=7860
+            server_port=port
         )
     
     except KeyboardInterrupt:

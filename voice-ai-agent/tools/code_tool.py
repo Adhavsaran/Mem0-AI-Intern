@@ -1,24 +1,24 @@
 """
-Code generation and saving tool using LM Studio local LLM.
+Code generation and saving tool using Ollama local LLM.
 """
-from config import get_lm_studio_client
+from config import get_ollama_client
 from tools.file_tool import create_file, get_output_dir
 from utils.logger import log_info, log_error
 
 
 class CodeGenerator:
-    """Generate and save code using LM Studio local LLM."""
+    """Generate and save code using Ollama local LLM."""
     
     def __init__(self, model_name: str = None):
         """
         Initialize code generator.
         
         Args:
-            model_name: LM Studio model name (auto-detected if None)
+            model_name: Ollama model name (auto-detected if None)
         """
         self.model_name = model_name
-        self.client = get_lm_studio_client()
-        log_info(f"CodeGenerator initialized with LM Studio")
+        self.client = get_ollama_client()
+        log_info(f"CodeGenerator initialized with Ollama")
     
     def generate_and_save_code(self, prompt: str, filename: str) -> str:
         """

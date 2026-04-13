@@ -31,16 +31,30 @@ class VoiceAIUI:
             # Handle audio input
             if audio is not None:
                 log_info("Audio input received")
-                sample_rate, audio_data = audio
-                
-                # Save audio to temporary file
                 import numpy as np
                 import soundfile as sf
-                temp_path = "temp_audio.wav"
                 
-                # Convert to float32 if needed
+                sample_rate, audio_data = audio
+                log_info(f"Audio format: sample_rate={sample_rate}, shape={audio_data.shape}, dtype={audio_data.dtype}")
+                
+                # Convert to numpy float32
                 audio_data = np.array(audio_data, dtype=np.float32)
+                
+                # Handle stereo -> mono conversion at normalization
+                if audio_data.ndim > 1:
+                    # If stereo, take average of channels
+                    audio_data = np.mean(audio_data, axis=1)
+                    log_info(f"Converted stereo to mono: {audio_data.shape}")
+                
+                # Normalize to [-1, 1]
+                max_val = np.max(np.abs(audio_data))
+                if max_val > 0:
+                    audio_data = audio_data / max_val
+                
+                # Save as WAV file (librosa in STT will handle resampling)
+                temp_path = "temp_audio.wav"
                 sf.write(temp_path, audio_data, sample_rate)
+                log_info(f"Audio saved to {temp_path}")
                 
                 # Process audio
                 result = self.orchestrator.process_audio(temp_path)

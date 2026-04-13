@@ -1,23 +1,23 @@
 """
-Text summarization tool using LM Studio local LLM.
+Text summarization tool using Ollama local LLM.
 """
-from config import get_lm_studio_client
+from config import get_ollama_client
 from utils.logger import log_info, log_error
 
 
 class TextSummarizer:
-    """Summarize text using LM Studio local LLM."""
+    """Summarize text using Ollama local LLM."""
     
     def __init__(self, model_name: str = None):
         """
         Initialize summarizer.
         
         Args:
-            model_name: LM Studio model name (auto-detected if None)
+            model_name: Ollama model name (auto-detected if None)
         """
         self.model_name = model_name
-        self.client = get_lm_studio_client()
-        log_info(f"TextSummarizer initialized with LM Studio")
+        self.client = get_ollama_client()
+        log_info(f"TextSummarizer initialized with Ollama")
     
     def summarize(self, text: str) -> str:
         """

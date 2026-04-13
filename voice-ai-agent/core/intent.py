@@ -1,33 +1,33 @@
 """
-Intent classification module using LM Studio local LLM.
+Intent classification module using Ollama local LLM.
 """
-from config import get_lm_studio_client, LM_STUDIO_BASE_URL
+from config import get_ollama_client, OLLAMA_BASE_URL
 from utils.parser import safe_parse_json, sanitize_intent
 from utils.logger import log_info, log_error
 
 
 class IntentClassifier:
-    """Classify user intent using LM Studio local LLM."""
+    """Classify user intent using Ollama local LLM."""
     
     def __init__(self, model_name: str = None):
         """
         Initialize the intent classifier.
         
         Args:
-            model_name: LM Studio model name (auto-detected if None)
+            model_name: Ollama model name (auto-detected if None)
         """
         self.model_name = model_name
-        self.client = get_lm_studio_client()
-        log_info(f"LM Studio client initialized at: {LM_STUDIO_BASE_URL}")
+        self.client = get_ollama_client()
+        log_info(f"Ollama client initialized at: {OLLAMA_BASE_URL}")
     
-    def check_lm_studio(self):
-        """Check if LM Studio is accessible."""
+    def check_ollama(self):
+        """Check if Ollama is accessible."""
         try:
             self.client.models.list()
-            log_info("LM Studio is accessible")
+            log_info("Ollama is accessible")
             return True
         except Exception as e:
-            log_error(f"LM Studio check failed: {e}")
+            log_error(f"Ollama check failed: {e}")
             return False
     
     def classify(self, text: str) -> dict:
@@ -47,7 +47,7 @@ class IntentClassifier:
         
         try:
             log_info(f"Classifying intent for: {text[:80]}...")
-            response = self._call_lm_studio(prompt)
+            response = self._call_ollama(prompt)
             intent_data = safe_parse_json(response)
             sanitized = sanitize_intent(intent_data)
             log_info(f"Intent classified as: {sanitized['intent']}")
@@ -77,9 +77,9 @@ Respond with ONLY valid JSON, no other text:
   "language": "programming language if mentioned or empty string"
 }}"""
     
-    def _call_lm_studio(self, prompt: str) -> str:
+    def _call_ollama(self, prompt: str) -> str:
         """
-        Call LM Studio local LLM with prompt.
+        Call Ollama local LLM with prompt.
         
         Args:
             prompt: Prompt text
@@ -94,7 +94,7 @@ Respond with ONLY valid JSON, no other text:
                 if models.data:
                     self.model_name = models.data[0].id
                 else:
-                    raise ValueError("No models available in LM Studio")
+                    raise ValueError("No models available in Ollama")
             
             response = self.client.chat.completions.create(
                 model=self.model_name,
@@ -107,5 +107,5 @@ Respond with ONLY valid JSON, no other text:
             )
             return response.choices[0].message.content
         except Exception as e:
-            raise ValueError(f"LM Studio API call failed: {e}")
+            raise ValueError(f"Ollama API call failed: {e}")
 

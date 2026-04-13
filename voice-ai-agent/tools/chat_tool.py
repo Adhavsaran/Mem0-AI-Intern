@@ -1,23 +1,23 @@
 """
-General chat tool using LM Studio local LLM.
+General chat tool using Ollama local LLM.
 """
-from config import get_lm_studio_client
+from config import get_ollama_client
 from utils.logger import log_info, log_error
 
 
 class ChatBot:
-    """General chat interface using LM Studio local LLM."""
+    """General chat interface using Ollama local LLM."""
     
     def __init__(self, model_name: str = None):
         """
         Initialize chatbot.
         
         Args:
-            model_name: LM Studio model name (auto-detected if None)
+            model_name: Ollama model name (auto-detected if None)
         """
         self.model_name = model_name
-        self.client = get_lm_studio_client()
-        log_info(f"ChatBot initialized with LM Studio")
+        self.client = get_ollama_client()
+        log_info(f"ChatBot initialized with Ollama")
     
     def chat(self, text: str) -> str:
         """

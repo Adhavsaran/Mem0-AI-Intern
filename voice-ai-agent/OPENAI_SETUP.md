@@ -29,7 +29,7 @@ This Voice AI Agent has been updated to use **OpenAI API** instead of local Olla
 
 ### Option A: Set Temporarily (Windows PowerShell)
 ```powershell
-$env:OPENAI_API_KEY = "your_api_key_here"
+$env:OPENAI_API_KEY = "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"
 python app/main.py
 ```
 
@@ -61,13 +61,13 @@ python app/main.py
 
 ### Option E: Set (Mac/Linux)
 ```bash
-export OPENAI_API_KEY="your_api_key_here"
+export OPENAI_API_KEY="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"
 python app/main.py
 ```
 
 Or add to `~/.bash_profile` or `~/.zshrc`:
 ```bash
-export OPENAI_API_KEY="your_api_key_here"
+export OPENAI_API_KEY="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"
 ```
 
 ---
