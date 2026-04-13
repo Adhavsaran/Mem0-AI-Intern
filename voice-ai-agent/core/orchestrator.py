@@ -1,8 +1,7 @@
 """
 Orchestrator - main pipeline controller that connects all components.
 """
-from core.stt import SpeechToText
-from core.intent import IntentClassifier
+# Defer heavy imports - these will be imported when models are actually used
 from tools.file_tool import create_file
 from tools.code_tool import CodeGenerator
 from tools.summary_tool import TextSummarizer
@@ -14,16 +13,34 @@ class VoiceAIOrchestrator:
     """Main pipeline connecting STT → Intent → Tools → Output."""
     
     def __init__(self):
-        """Initialize all components."""
+        """Initialize orchestrator (models load on first use for faster startup)."""
         log_info("Initializing Voice AI Orchestrator...")
         
-        self.stt = SpeechToText()
-        self.intent_classifier = IntentClassifier()
-        self.code_generator = CodeGenerator()
-        self.summarizer = TextSummarizer()
-        self.chatbot = ChatBot()
+        # Lazy load models - they'll be created on first use
+        self.stt = None
+        self.intent_classifier = None
+        self.code_generator = None
+        self.summarizer = None
+        self.chatbot = None
         
-        log_info("Orchestrator initialized successfully")
+        log_info("Orchestrator initialized (models will load on first use)")
+    
+    def _ensure_models_loaded(self):
+        """Lazily load heavy models on first use."""
+        if self.stt is None:
+            log_info("⏳ Loading Speech-to-Text model on first use...")
+            from core.stt import SpeechToText
+            self.stt = SpeechToText()
+        if self.intent_classifier is None:
+            log_info("⏳ Loading Intent Classifier on first use...")
+            from core.intent import IntentClassifier
+            self.intent_classifier = IntentClassifier()
+        if self.code_generator is None:
+            self.code_generator = CodeGenerator()
+        if self.summarizer is None:
+            self.summarizer = TextSummarizer()
+        if self.chatbot is None:
+            self.chatbot = ChatBot()
     
     def process_audio(self, audio_path: str) -> dict:
         """
@@ -36,6 +53,9 @@ class VoiceAIOrchestrator:
             Dict with transcription, intent, and result
         """
         try:
+            # Ensure models are loaded
+            self._ensure_models_loaded()
+            
             # Step 1: Transcribe audio
             log_info("Step 1: Transcribing audio...")
             transcription = self.stt.transcribe(audio_path)
@@ -77,6 +97,9 @@ class VoiceAIOrchestrator:
             Dict with intent and result
         """
         try:
+            # Ensure models are loaded
+            self._ensure_models_loaded()
+            
             # Skip STT, go straight to intent classification
             log_info("Processing text input...")
             intent_data = self.intent_classifier.classify(text)

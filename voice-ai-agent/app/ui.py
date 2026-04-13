@@ -2,7 +2,6 @@
 Gradio UI for Voice AI Agent.
 Provides a clean interface for audio input, processing, and result display.
 """
-import gradio as gr
 import os
 from core.orchestrator import VoiceAIOrchestrator
 from utils.logger import log_info
@@ -96,10 +95,16 @@ class VoiceAIUI:
             server_name: Server hostname
             server_port: Server port
         """
+        # Import Gradio here (on first launch) to speed up app startup
+        import gradio as gr
+        log_info("Gradio imported successfully")
+        
+        log_info("Creating Gradio Blocks interface...")
         with gr.Blocks(
             title="Voice AI Agent",
             theme=gr.themes.Soft()
         ) as demo:
+            log_info("Gradio Blocks created, adding components...")
             gr.Markdown(
                 """
                 # 🎤 Voice-Controlled AI Agent
@@ -162,6 +167,7 @@ class VoiceAIUI:
                     )
             
             # Connect button to processing function
+            log_info("Connecting button click handler...")
             process_btn.click(
                 fn=self.process_audio_input,
                 inputs=[audio_input, text_input],
@@ -182,11 +188,25 @@ class VoiceAIUI:
                 """
             )
         
-        demo.launch(
-            share=share,
-            server_name=server_name,
-            server_port=server_port
-        )
+        log_info("Gradio interface configured. Starting server...")
+        log_info(f"Launch parameters: share={share}, server_name={server_name}, server_port={server_port}")
+        
+        try:
+            demo.launch(
+                share=share,
+                server_name=server_name,
+                server_port=server_port,
+                queue=False,
+                show_error=True,
+                inbrowser=False,
+                debug=False
+            )
+            log_info("✅ Gradio server launched successfully!")
+        except Exception as e:
+            log_error(f"Failed to launch Gradio: {e}")
+            import traceback
+            traceback.print_exc()
+            raise
 
 
 def create_ui() -> VoiceAIUI:

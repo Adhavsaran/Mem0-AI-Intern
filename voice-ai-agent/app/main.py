@@ -15,6 +15,13 @@ from config import check_ollama, OLLAMA_BASE_URL
 
 def main():
     """Main application entry point."""
+    import sys
+    import io
+    
+    # Ensure output is unbuffered for real-time logging
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', line_buffering=True)
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', line_buffering=True)
+    
     log_info("=" * 60)
     log_info("🎤 Voice-Controlled AI Agent")
     log_info("   STT: Whisper (HuggingFace)")
@@ -37,44 +44,11 @@ def main():
             log_info(f"   - Set OLLAMA_BASE_URL environment variable if using different port")
             return
         log_info("✓ Ollama connected")
+        log_info("✅ Pre-flight checks passed!\n")
         
-        # Check for required tools
-        try:
-            import gradio
-            log_info("✓ Gradio installed")
-        except ImportError:
-            log_error("✗ Gradio not found. Install with: pip install gradio")
-            return
-        
-        try:
-            import transformers
-            log_info("✓ Transformers installed")
-        except ImportError:
-            log_error("✗ Transformers not found. Install with: pip install transformers")
-            return
-        
-        try:
-            import torch
-            log_info("✓ PyTorch installed")
-        except ImportError:
-            log_error("✗ PyTorch not found. Install with: pip install torch")
-            return
-        
-        try:
-            import soundfile
-            log_info("✓ Soundfile installed")
-        except ImportError:
-            log_error("✗ Soundfile not found. Install with: pip install soundfile")
-            return
-        
-        try:
-            import openai
-            log_info("✓ OpenAI library installed")
-        except ImportError:
-            log_error("✗ OpenAI library not found. Install with: pip install openai")
-            return
-        
-        log_info("\n✅ All checks passed!\n")
+        # Initialize UI
+        log_info("Creating UI...")
+        ui = create_ui()
         
         # Find available port
         import socket
@@ -99,13 +73,15 @@ def main():
         log_info("🚀 Launching Gradio UI...")
         log_info(f"📍 Open browser to: http://127.0.0.1:{port}")
         log_info("   Press Ctrl+C to stop\n")
+        log_info("DEBUG: About to call ui.launch()...")
         
-        ui = create_ui()
         ui.launch(
             share=False,
             server_name="127.0.0.1",
             server_port=port
         )
+        
+        log_info("DEBUG: ui.launch() completed (this shouldn't print if blocking)")
     
     except KeyboardInterrupt:
         log_info("\n\n👋 Shutting down...")

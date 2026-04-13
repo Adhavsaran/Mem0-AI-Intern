@@ -24,11 +24,14 @@ class SpeechToText:
         
         try:
             log_info(f"Loading {model_name} model...")
+            log_info("⏳ Downloading processor (this may take a minute on first run)...")
             self.processor = WhisperProcessor.from_pretrained(model_name)
+            log_info("✓ Processor downloaded. Now downloading model (500MB+)...")
             self.model = WhisperForConditionalGeneration.from_pretrained(model_name)
+            log_info("✓ Model downloaded. Converting to device...")
             self.model = self.model.to(self.device)
             self.model.eval()
-            log_info(f"Model {model_name} loaded successfully on {self.device}!")
+            log_info(f"✓ Model {model_name} loaded successfully on {self.device}!")
         except Exception as e:
             log_error(f"Failed to load model {model_name}: {e}")
             self.processor = None
